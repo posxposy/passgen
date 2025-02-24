@@ -38,9 +38,15 @@ procedure PassGen is
       end if;
    end Parse_Arg;
 
+   function Random_Char (Source : String) return Character is
+   begin
+      return Source (Integer (Random.Random (Gen)) mod Source'Length + 1);
+   end Random_Char;
+
    function Generate_Password (Len : Password_Length) return String is
       Result        : Unbounded_String := To_Unbounded_String ("");
       Allowed_Chars : Unbounded_String := To_Unbounded_String ("");
+      Remaining_Len : Integer          := Len;
    begin
       if Use_Lower then
          Append (Allowed_Chars, Lowercase);
@@ -55,9 +61,21 @@ procedure PassGen is
          Append (Allowed_Chars, Symbols);
       end if;
 
-      if Length (Allowed_Chars) = 0 then
-         Put_Line ("Provide at least one character set.");
-         return To_String (Result);
+      if Use_Lower and Remaining_Len > 0 then
+         Append (Result, Random_Char (Lowercase));
+         Remaining_Len := Remaining_Len - 1;
+      end if;
+      if Use_Upper and Remaining_Len > 0 then
+         Append (Result, Random_Char (Uppercase));
+         Remaining_Len := Remaining_Len - 1;
+      end if;
+      if Use_Digits and Remaining_Len > 0 then
+         Append (Result, Random_Char (Numbers));
+         Remaining_Len := Remaining_Len - 1;
+      end if;
+      if Use_Symbols and Remaining_Len > 0 then
+         Append (Result, Random_Char (Symbols));
+         Remaining_Len := Remaining_Len - 1;
       end if;
 
       for I in 1 .. Len loop
@@ -111,4 +129,5 @@ begin
    begin
       Put_Line (Password);
    end;
+
 end PassGen;
