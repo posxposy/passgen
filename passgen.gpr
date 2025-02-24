@@ -1,5 +1,5 @@
 with "config/passgen_config.gpr";
-project Passgen is
+project PassGen is
 
    for Source_Dirs use ("src/", "config/");
    for Object_Dir use "obj/" & Passgen_Config.Build_Profile;
@@ -21,8 +21,9 @@ project Passgen is
 
    package Pretty_Printer is
       for Default_Switches("Ada") use (
-         "-M120"
+         "-M120",
+         "--max-line-length=120"
       );
    end Pretty_Printer;
 
-end Passgen;
+end PassGen;

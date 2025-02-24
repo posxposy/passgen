@@ -1,5 +1,6 @@
 {
 	"[ada]": {
-		"editor.formatOnSave": true
+		"editor.formatOnSave": true,
+		"editor.wordWrapColumn": 120,
 	}
 }
