@@ -43,6 +43,19 @@ procedure PassGen is
       return Source (Integer (Random.Random (Gen)) mod Source'Length + 1);
    end Random_Char;
 
+   procedure Shuffle (Text : in out Unbounded_String) is
+      Temp       : Character;
+      Idx1, Idx2 : Integer;
+   begin
+      for I in reverse 2 .. Length (Text) loop
+         Idx1 := I;
+         Idx2 := Integer (Random.Random (Gen)) mod I + 1;
+         Temp := Element (Text, Idx1);
+         Replace_Element (Text, Idx1, Element (Text, Idx2));
+         Replace_Element (Text, Idx2, Temp);
+      end loop;
+   end Shuffle;
+
    function Generate_Password (Len : Password_Length) return String is
       Result        : Unbounded_String := To_Unbounded_String ("");
       Allowed_Chars : Unbounded_String := To_Unbounded_String ("");
@@ -78,14 +91,11 @@ procedure PassGen is
          Remaining_Len := Remaining_Len - 1;
       end if;
 
-      for I in 1 .. Len loop
-         declare
-            Idx : Integer := Integer (Random.Random (Gen)) mod Length (Allowed_Chars) + 1;
-         begin
-            Append (Result, Element (Allowed_Chars, Idx));
-         end;
+      for I in 1 .. Remaining_Len loop
+         Append (Result, Element (Allowed_Chars, Integer (Random.Random (Gen)) mod Length (Allowed_Chars) + 1));
       end loop;
 
+      Shuffle (Result);
       return To_String (Result);
    end Generate_Password;
 begin
