@@ -2,6 +2,8 @@ with Ada.Text_IO;           use Ada.Text_IO;
 with Ada.Command_Line;      use Ada.Command_Line;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Numerics.Discrete_Random;
+with Ada.Numerics.Float_Random;
+with Ada.Calendar;
 
 procedure PassGen is
    type Argument_Kind is (No_Lower, No_Upper, No_Number, No_Symbol, Help, Unknown);
@@ -19,9 +21,12 @@ procedure PassGen is
    Use_Digits  : Boolean := True;
    Use_Symbols : Boolean := True;
 
-   type Rand_Range is range 1 .. 100;
-   package Random is new Ada.Numerics.Discrete_Random (Rand_Range);
-   Gen : Random.Generator;
+   type Rand_Range is mod 2**16;
+   package Integer_Rnd is new Ada.Numerics.Discrete_Random (Rand_Range);
+   Integer_Gen : Integer_Rnd.Generator;
+
+   package Float_Rnd renames Ada.Numerics.Float_Random;
+   Float_Gen : Float_Rnd.Generator;
 
    function Parse_Arg (Arg : String) return Argument_Kind is
    begin
@@ -41,8 +46,10 @@ procedure PassGen is
    end Parse_Arg;
 
    function Random_Char (Source : String) return Character is
+      Position : Integer;
    begin
-      return Source (Integer (Random.Random (Gen)) mod Source'Length + 1);
+      Position := Integer (Float (Source'Length) * Float_Rnd.Random (Float_Gen)) + 1;
+      return Source (Position);
    end Random_Char;
 
    procedure Shuffle (Text : in out Unbounded_String) is
@@ -51,7 +58,7 @@ procedure PassGen is
    begin
       for I in reverse 2 .. Length (Text) loop
          Idx1 := I;
-         Idx2 := Integer (Random.Random (Gen)) mod I + 1;
+         Idx2 := Integer (Integer_Rnd.Random (Integer_Gen)) mod I + 1;
          Temp := Element (Text, Idx1);
          Replace_Element (Text, Idx1, Element (Text, Idx2));
          Replace_Element (Text, Idx2, Temp);
@@ -98,14 +105,17 @@ procedure PassGen is
       end if;
 
       for I in 1 .. Remaining_Len loop
-         Append (Result, Element (Allowed_Chars, Integer (Random.Random (Gen)) mod Length (Allowed_Chars) + 1));
+         Append
+           (Result, Element (Allowed_Chars, Integer (Integer_Rnd.Random (Integer_Gen)) mod Length (Allowed_Chars) + 1));
       end loop;
 
       Shuffle (Result);
       return To_String (Result);
    end Generate_Password;
 begin
-   Random.Reset (Gen);
+   Integer_Rnd.Reset (Integer_Gen, Integer (Ada.Calendar.Seconds (Ada.Calendar.Clock)));
+   Float_Rnd.Reset (Float_Gen);
+
    for I in 1 .. Argument_Count loop
       declare
          Arg  : String        := Argument (I);
