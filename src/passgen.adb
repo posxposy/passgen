@@ -93,6 +93,10 @@ procedure PassGen is
          Remaining_Len := Remaining_Len - 1;
       end if;
 
+      if Length (Allowed_Chars) = 0 then
+         raise Constraint_Error;
+      end if;
+
       for I in 1 .. Remaining_Len loop
          Append (Result, Element (Allowed_Chars, Integer (Random.Random (Gen)) mod Length (Allowed_Chars) + 1));
       end loop;
@@ -128,6 +132,7 @@ begin
                   return;
                when Unknown =>
                   Put_Line ("Unknown argument " & Arg);
+                  Set_Exit_Status (1);
                   return;
             end case;
          else
@@ -136,19 +141,27 @@ begin
             exception
                when Constraint_Error =>
                   Put_Line ("Password length must be between 4 and 128");
+                  Set_Exit_Status (1);
                   return;
                when others           =>
                   Put_Line ("Invalid argument " & Arg & " (expected integer)");
+                  Set_Exit_Status (1);
                   return;
             end;
          end if;
       end;
    end loop;
 
-   declare
-      Password : String := Generate_Password (Length_Arg);
    begin
-      Put_Line (Password);
+      declare
+         Password : String := Generate_Password (Length_Arg);
+      begin
+         Put_Line (Password);
+      end;
+   exception
+      when Constraint_Error =>
+         Put_Line ("At least one character set must be enabled.");
+         Set_Exit_Status (1);
    end;
 
 end PassGen;
