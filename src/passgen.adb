@@ -4,7 +4,7 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Numerics.Discrete_Random;
 
 procedure PassGen is
-   type Argument_Kind is (No_Lower, No_Upper, No_Number, No_Symbol, Unknown);
+   type Argument_Kind is (No_Lower, No_Upper, No_Number, No_Symbol, Help, Unknown);
 
    Lowercase : constant String := "abcdefghijklmnopqrstuvwxyz";
    Uppercase : constant String := "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -33,6 +33,8 @@ procedure PassGen is
          return No_Number;
       elsif Arg = "--no-symbols" then
          return No_Symbol;
+      elsif Arg = "--help" then
+         return Help;
       else
          return Unknown;
       end if;
@@ -115,6 +117,15 @@ begin
                   Use_Digits := False;
                when No_Symbol =>
                   Use_Symbols := False;
+               when Help =>
+                  Put_Line ("Usage: PassGen [options] [length]");
+                  Put_Line ("Options:");
+                  Put_Line ("  --no-lower    Exclude lowercase letters");
+                  Put_Line ("  --no-upper    Exclude uppercase letters");
+                  Put_Line ("  --no-numbers  Exclude numbers");
+                  Put_Line ("  --no-symbols  Exclude symbols");
+                  Put_Line ("  --help        Display this help message");
+                  return;
                when Unknown =>
                   Put_Line ("Unknown argument " & Arg);
                   return;
