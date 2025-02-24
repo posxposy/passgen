@@ -1,0 +1,12 @@
+name = "passgen"
+description = ""
+version = "0.1.0-dev"
+
+authors = ["Dmytro Hryppa"]
+maintainers = ["Dmytro Hryppa <dmitry.hryppa@gmail.com>"]
+maintainers-logins = ["posxposy"]
+licenses = "MIT"
+website = ""
+tags = []
+
+executables = ["passgen"]
